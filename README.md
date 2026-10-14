@@ -41,11 +41,32 @@ Prepoznaje linkove s `x.com`, `twitter.com`, `fxtwitter.com`, `vxtwitter.com` i 
 | `TIMEZONE` | opcionalno, za mjesečne foldere, zadano `Europe/Zagreb` |
 | `LOG_MAX` | opcionalno, maksimalna duljina log linije, zadano 400 |
 
+## Docker
+
+```sh
+docker compose up -d --build   # build i pokretanje u pozadini
+docker compose logs -f         # live log
+docker compose down            # gašenje
+```
+
+`.env` se ne kopira u image, nego ga compose učitava pri pokretanju (`env_file`). `npm run dropbox-auth` pokreni lokalno, izvan Dockera, jer upisuje token u `.env`.
+
 ## Deploy na server
 
-- Prebaci `.env` (npr. `scp`) i zaključaj ga s `chmod 600 .env`. `dropbox-auth` ne treba ponovno pokretati
-- Pokreni s `npm start` pod systemd-om (ili pm2) da se bot sam podigne nakon restarta
-- Bot s istim tokenom smije raditi samo na jednom mjestu. Telegram ne dopušta dva istovremena `getUpdates`, pa ugasi lokalnu instancu
+Domena i otvoreni portovi ne trebaju (long polling), dovoljan je SSH.
+
+```sh
+# na serveru, jednom
+curl -fsSL https://get.docker.com | sh
+
+# s lokalnog računala
+rsync -av --exclude node_modules ./ root@<IP>:/opt/video_downloader/
+ssh root@<IP> 'cd /opt/video_downloader && chmod 600 .env && docker compose up -d --build'
+```
+
+Za ažuriranje ponovi zadnje dvije naredbe. `restart: unless-stopped` podiže bota nakon restarta servera.
+
+Bot s istim tokenom smije raditi samo na jednom mjestu. Telegram ne dopušta dva istovremena `getUpdates`, pa ugasi lokalnu instancu.
 
 ## Struktura
 
