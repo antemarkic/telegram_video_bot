@@ -1,12 +1,13 @@
-// Telegram bot preko long pollinga (bez webhooka/ngroka): link na tweet -> video na Dropbox.
+// Telegram bot preko long pollinga (bez webhooka/ngroka): link na tweet / Instagram / Facebook -> video na Dropbox.
 import { log } from './log.js';
+import { saveSocialVideos, SOCIAL_URL } from './social-video.js';
 import { saveTweetVideos, TWEET_URL } from './tweet-video.js';
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 if (!token) throw new Error('Nedostaje TELEGRAM_BOT_TOKEN u .env (dobiješ ga od @BotFather).');
 const ownerId = process.env.TELEGRAM_OWNER_ID?.trim();
 
-const HELP = 'Pošalji link na tweet i spremit ću video na Dropbox.\n'
+const HELP = 'Pošalji link na tweet, Instagram ili Facebook post i spremit ću video na Dropbox.\n'
   + '"folder /putanja" uz link sprema u drugi podfolder, "opet" ponovno uploada postojeći video.';
 
 const api = async (method, body) => {
@@ -55,14 +56,15 @@ while (true) {
     }
     const text = msg.text?.trim();
     log('message', text ?? '[nije tekst]');
-    if (!text || !TWEET_URL.test(text)) {
+    const save = TWEET_URL.test(text) ? saveTweetVideos : SOCIAL_URL.test(text) ? saveSocialVideos : null;
+    if (!text || !save) {
       await send(from, HELP);
       continue;
     }
 
     api('sendChatAction', { chat_id: from, action: 'upload_video' }).catch(() => {});
     try {
-      await send(from, await saveTweetVideos(text));
+      await send(from, await save(text));
     } catch (err) {
       console.error('Greška u obradi poruke:', err);
       await send(from, 'Nešto je puklo na mojoj strani. Detalji su u logu.').catch(() => {});

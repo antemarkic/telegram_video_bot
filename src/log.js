@@ -3,6 +3,7 @@ export const ICONS = {
   message: '✉️ ', // dolazna poruka
   output: '🖨️ ', // odgovor koji bot šalje
   twitter: '🐦',
+  ytdlp: '🎬', // Instagram / Facebook
   dropbox: '📦',
 };
 

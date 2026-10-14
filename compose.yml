@@ -8,3 +8,7 @@ services:
       options:
         max-size: 10m
         max-file: "3"
+    # Za Instagram / Facebook postove koji traže prijavu (YTDLP_COOKIES=/app/cookies.txt u .env).
+    # yt-dlp osvježava cookies, pa datoteka mora biti zapisiva: chmod 666 cookies.txt
+    # volumes:
+    #   - ./cookies.txt:/app/cookies.txt

@@ -5,3 +5,4 @@ node_modules
 scripts
 *.md
 .DS_Store
+cookies.txt
